@@ -25,38 +25,42 @@ namespace Microsoft.Azure.Commands.DataLakeAnalytics
     [Cmdlet(VerbsLifecycle.Submit, "AzureRmDataLakeAnalyticsJob"), OutputType(typeof (JobInformation))]
     public class SubmitAzureDataLakeAnalyticsJob : DataLakeAnalyticsCmdletBase
     {
-        // internal const string HiveJobWithScriptPath = "Submit job with script path for Hive";
+        internal const string HiveJobWithScriptPath = "Submit job with script path for Hive";
         internal const string USqlJobWithScriptPath = "Submit job with script path for SQL-IP";
         internal const string USqlJobParameterSetName = "Submit SQL-IP Job";
         private int _degreeOfParallelism = 1;
         private int _priority = 1000;
-        // internal const string HiveJobParameterSetName = "Submit Hive Job";
-
-        // TODO: Remove this once hive jobs are enabled
-        private SwitchParameter sqlip = true;
+        internal const string HiveJobParameterSetName = "Submit Hive Job";
 
         [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = USqlJobWithScriptPath, Position = 0,
             Mandatory = true, HelpMessage = "Name of Data Lake Analytics account under which the job will be submitted."
             )]
-        // [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobWithScriptPath, Mandatory = true, HelpMessage = "Name of Data Lake Analytics account under which the job will be submitted.")]
+        [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobWithScriptPath, 
+            Mandatory = true, HelpMessage = "Name of Data Lake Analytics account under which the job will be submitted."
+            )]
         [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = USqlJobParameterSetName, Position = 0,
             Mandatory = true, HelpMessage = "Name of Data Lake Analytics account under which the job will be submitted."
             )]
-        // [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobParameterSetName, Mandatory = true, HelpMessage = "Name of Data Lake Analytics account under which the job will be submitted.")]
+        [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobParameterSetName, 
+            Mandatory = true, HelpMessage = "Name of Data Lake Analytics account under which the job will be submitted."
+            )]
         [ValidateNotNullOrEmpty]
         [Alias("AccountName")]
         public string Account { get; set; }
 
         [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = USqlJobWithScriptPath, Position = 1,
             Mandatory = true, HelpMessage = "The friendly name of the job to submit.")]
-        // [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobWithScriptPath, Mandatory = true, HelpMessage = "The friendly name of the job to submit.")]
+        [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobWithScriptPath, 
+            Mandatory = true, HelpMessage = "The friendly name of the job to submit.")]
         [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = USqlJobParameterSetName, Position = 1,
             Mandatory = true, HelpMessage = "The friendly name of the job to submit.")]
-        // [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobParameterSetName, Mandatory = true, HelpMessage = "The friendly name of the job to submit.")]
+        [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobParameterSetName, 
+            Mandatory = true, HelpMessage = "The friendly name of the job to submit.")]
         [ValidateNotNullOrEmpty]
         public string Name { get; set; }
 
-        // [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobWithScriptPath, Mandatory = true, HelpMessage = "Path to the script file to submit.")]
+        [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobWithScriptPath, 
+            Mandatory = true, HelpMessage = "Path to the script file to submit.")]
         [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = USqlJobWithScriptPath, Position = 2,
             Mandatory = true, HelpMessage = "Path to the script file to submit.")]
         [ValidateNotNullOrEmpty]
@@ -65,21 +69,22 @@ namespace Microsoft.Azure.Commands.DataLakeAnalytics
         [Parameter(ValueFromPipelineByPropertyName = true, ValueFromPipeline = true, Position = 2,
             ParameterSetName = USqlJobParameterSetName, Mandatory = true,
             HelpMessage = "Script to execute (written inline).")]
-        // [Parameter(ValueFromPipelineByPropertyName = true, ValueFromPipeline = true, ParameterSetName = HiveJobParameterSetName, Mandatory = true, HelpMessage = "Script to execute (written inline).")]
+        [Parameter(ValueFromPipelineByPropertyName = true, ValueFromPipeline = true, 
+            ParameterSetName = HiveJobParameterSetName, Mandatory = true, 
+            HelpMessage = "Script to execute (written inline).")]
         [ValidateNotNullOrEmpty]
         public string Script { get; set; }
 
-        // TODO: Uncomment this out when hive is enabled
-        // [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = USqlJobWithScriptPath, Mandatory = true, HelpMessage = "Indicates that a SQL-IP job is being submitted.")]
-        // [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = USqlJobParameterSetName, Mandatory = true, HelpMessage = "Indicates that a SQL-IP job is being submitted.")]
-        public SwitchParameter USql
-        {
-            get { return sqlip; }
-            set { sqlip = value; }
-        }
+        [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = USqlJobWithScriptPath, 
+            Mandatory = true, HelpMessage = "Indicates that a SQL-IP job is being submitted.")]
+        [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = USqlJobParameterSetName, 
+            Mandatory = true, HelpMessage = "Indicates that a SQL-IP job is being submitted.")]
+        public SwitchParameter USql { get; set; }
 
-        // [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobWithScriptPath, Mandatory = true, HelpMessage = "Indicates that a Hive job is being submitted.")]
-        // [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobParameterSetName, Mandatory = true, HelpMessage = "Indicates that a Hive job is being submitted.")]
+        [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobWithScriptPath, 
+            Mandatory = true, HelpMessage = "Indicates that a Hive job is being submitted.")]
+        [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobParameterSetName, 
+            Mandatory = true, HelpMessage = "Indicates that a Hive job is being submitted.")]
         public SwitchParameter Hive { get; set; }
 
         [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = USqlJobWithScriptPath, Position = 3,
@@ -153,10 +158,12 @@ namespace Microsoft.Azure.Commands.DataLakeAnalytics
 
         [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = USqlJobWithScriptPath, Position = 8,
             Mandatory = false, HelpMessage = "Name of resource group under which the job will be submitted.")]
-        // [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobWithScriptPath, Mandatory = false, HelpMessage = "Name of resource group under which the job will be submitted.")]
+        [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobWithScriptPath, 
+            Mandatory = false, HelpMessage = "Name of resource group under which the job will be submitted.")]
         [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = USqlJobParameterSetName, Position = 8,
             Mandatory = false, HelpMessage = "Name of resource group under which the job will be submitted.")]
-        // [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobParameterSetName, Mandatory = false, HelpMessage = "Name of resource group under which the job will be submitted.")]
+        [Parameter(ValueFromPipelineByPropertyName = true, ParameterSetName = HiveJobParameterSetName, 
+            Mandatory = false, HelpMessage = "Name of resource group under which the job will be submitted.")]
         [ValidateNotNullOrEmpty]
         public string ResourceGroupName { get; set; }
 
