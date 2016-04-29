@@ -17,7 +17,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
-using Microsoft.Azure.Management.RecoveryServices.Models;
+using Microsoft.Azure.Management.SiteRecoveryVault.Models;
 using Microsoft.Azure.Management.SiteRecovery.Models;
 using Microsoft.Azure.Portal.RecoveryServices.Models.Common;
 using System.Web.Script.Serialization;
@@ -754,7 +754,7 @@ namespace Microsoft.Azure.Commands.SiteRecovery
         public ASRProtectionEntity(ProtectableItem pi, ReplicationProtectedItem rpi, Policy policy = null) : this(pi)
         {
             this.Type = rpi.Type;
-            this.ProtectionStateDescription = rpi.Properties.ProtectionState;
+            this.ProtectionStateDescription = rpi.Properties.ProtectionStateDescription;
 
             if (rpi.Properties.AllowedOperations != null)
             {
@@ -773,6 +773,7 @@ namespace Microsoft.Azure.Commands.SiteRecovery
             {
                 this.Policy = new ASRPolicy(policy);
             }
+            this.ReplicationProtectedItemId = rpi.Id;
         }
 
         private void UpdateDiskDetails(IList<DiskDetails> diskDetails)
@@ -882,6 +883,11 @@ namespace Microsoft.Azure.Commands.SiteRecovery
         /// Gets or sets Replication provider.
         /// </summary>
         public string ReplicationProvider { get; set; }
+
+        /// <summary>
+        /// Gets or sets Replication protected item id.
+        /// </summary>
+        public string ReplicationProtectedItemId { get; set; }
     }
 
     /// <summary>
@@ -966,11 +972,13 @@ namespace Microsoft.Azure.Commands.SiteRecovery
             this.ClientRequestId = job.Properties.ActivityId;
             this.State = job.Properties.State;
             this.StateDescription = job.Properties.StateDescription;
-            this.EndTime = job.Properties.EndTime;
-            this.StartTime = job.Properties.StartTime;
             this.Name = job.Name;
             this.TargetObjectId = job.Properties.TargetObjectId;
             this.TargetObjectName = job.Properties.TargetObjectName;
+            if(job.Properties.EndTime.HasValue)
+                this.EndTime =  job.Properties.EndTime.Value.ToLocalTime();
+            if(job.Properties.StartTime.HasValue)
+                this.StartTime = job.Properties.StartTime.Value.ToLocalTime();
             if (job.Properties.AllowedActions != null && job.Properties.AllowedActions.Count > 0)
             {
                 this.AllowedActions = new List<string>();
@@ -1047,12 +1055,12 @@ namespace Microsoft.Azure.Commands.SiteRecovery
         /// <summary>
         /// Gets or sets Start timestamp.
         /// </summary>
-        public DateTimeOffset? StartTime { get; set; }
+        public DateTime? StartTime { get; set; }
 
         /// <summary>
         /// Gets or sets End timestamp.
         /// </summary>
-        public DateTimeOffset? EndTime { get; set; }
+        public DateTime? EndTime { get; set; }
 
         /// <summary>
         /// Gets or sets TargetObjectId.
@@ -1326,6 +1334,53 @@ namespace Microsoft.Azure.Commands.SiteRecovery
         /// Gets or sets the Time of the error creation.
         /// </summary>
         public DateTime CreationTimeUtc { get; set; }
+    }
+
+    /// <summary>
+    /// Represents Azure site recovery storage classification.
+    /// </summary>
+    public class ASRStorageClassification
+    {
+        /// <summary>
+        /// Gets or sets Storage classification ARM Id.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets Storage classification ARM name.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets Storage classification friendly name.
+        /// </summary>
+        public string FriendlyName { get; set; }
+    }
+    
+    /// <summary>
+    /// Represents Azure site recovery storage classification mapping.
+    /// </summary>
+    public class ASRStorageClassificationMapping
+    {
+        /// <summary>
+        /// Gets or sets Storage classification ARM Id.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets Storage classification ARM name.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets primary classification ARM Id.
+        /// </summary>
+        public string PrimaryClassificationId { get; set; }
+
+        /// <summary>
+        /// Gets or sets recovery classification ARM Id.
+        /// </summary>
+        public string RecoveryClassificationId { get; set; }
     }
 
     /// <summary>

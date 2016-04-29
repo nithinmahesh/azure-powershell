@@ -31,15 +31,15 @@ namespace Microsoft.Azure.Commands.Network
         [Parameter(
             Mandatory = true,
             ValueFromPipeline = true,
-            HelpMessage = "The Circuit")]
-        public PSExpressRouteCircuit Circuit { get; set; }
+            HelpMessage = "The ExpressRouteCircuit")]
+        public PSExpressRouteCircuit ExpressRouteCircuit { get; set; }
 
         public override void ExecuteCmdlet()
         {
             base.ExecuteCmdlet();
 
             // Verify if the subnet exists in the VirtualNetwork
-            var peering = this.Circuit.Peerings.SingleOrDefault(resource => string.Equals(resource.Name, this.Name, StringComparison.CurrentCultureIgnoreCase));
+            var peering = this.ExpressRouteCircuit.Peerings.SingleOrDefault(resource => string.Equals(resource.Name, this.Name, StringComparison.CurrentCultureIgnoreCase));
 
             if (peering == null)
             {
@@ -58,16 +58,16 @@ namespace Microsoft.Azure.Commands.Network
                 peering.SharedKey = this.SharedKey; 
             }
 
-            if (this.MircosoftConfigAdvertisedPublicPrefixes != null
-                && this.MircosoftConfigAdvertisedPublicPrefixes.Any())
+            if (this.MicrosoftConfigAdvertisedPublicPrefixes != null
+                && this.MicrosoftConfigAdvertisedPublicPrefixes.Any())
             {
                 peering.MicrosoftPeeringConfig = new PSPeeringConfig();
-                peering.MicrosoftPeeringConfig.AdvertisedPublicPrefixes = this.MircosoftConfigAdvertisedPublicPrefixes;
-                peering.MicrosoftPeeringConfig.CustomerASN = this.MircosoftConfigCustomerAsn;
-                peering.MicrosoftPeeringConfig.RoutingRegistryName = this.MircosoftConfigRoutingRegistryName;
+                peering.MicrosoftPeeringConfig.AdvertisedPublicPrefixes = this.MicrosoftConfigAdvertisedPublicPrefixes;
+                peering.MicrosoftPeeringConfig.CustomerASN = this.MicrosoftConfigCustomerAsn;
+                peering.MicrosoftPeeringConfig.RoutingRegistryName = this.MicrosoftConfigRoutingRegistryName;
             }
 
-            WriteObject(this.Circuit);
+            WriteObject(this.ExpressRouteCircuit);
         }
     }
 }

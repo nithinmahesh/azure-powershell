@@ -13,12 +13,15 @@
 // ----------------------------------------------------------------------------------
 
 using Microsoft.Azure.Management.Compute;
+using Microsoft.Azure.Management.Compute.Models;
 
 namespace Microsoft.Azure.Commands.Compute
 {
     public abstract class VirtualMachineBaseCmdlet : ComputeClientBaseCmdlet
     {
-        public IVirtualMachineOperations VirtualMachineClient
+        protected const InstanceViewTypes InstanceViewExpand = InstanceViewTypes.InstanceView;
+
+        public IVirtualMachinesOperations VirtualMachineClient
         {
             get
             {

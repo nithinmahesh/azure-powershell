@@ -36,21 +36,22 @@ namespace Microsoft.Azure.Commands.SiteRecovery
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
         [ValidateNotNullOrEmpty]
         public ASRServer Server { get; set; }
+
+        /// <summary>
+        /// Gets or sets switch parameter. On passing, command does not ask for confirmation.
+        /// </summary>
+        [Parameter]
+        public SwitchParameter Force { get; set; }
+
         #endregion Parameters
 
         /// <summary>
         /// ProcessRecord of the command.
         /// </summary>
-        public override void ExecuteCmdlet()
+        public override void ExecuteSiteRecoveryCmdlet()
         {
-            try
-            {
-                RemoveServer();
-            }
-            catch (Exception exception)
-            {
-                this.HandleException(exception);
-            }
+            base.ExecuteSiteRecoveryCmdlet();
+            RemoveServer();
         }
 
         /// <summary>
@@ -63,19 +64,24 @@ namespace Microsoft.Azure.Commands.SiteRecovery
                 throw new PSInvalidOperationException(Properties.Resources.InvalidServerType);
             }
 
-            RecoveryServicesProviderDeletionInput input = new RecoveryServicesProviderDeletionInput()
-            {
-                Properties = new RecoveryServicesProviderDeletionInputProperties()
-            };
+            LongRunningOperationResponse response;
 
-            LongRunningOperationResponse response =
-                    RecoveryServicesClient.RemoveAzureSiteRecoveryProvider(Utilities.GetValueFromArmId(this.Server.ID, ARMResourceTypeConstants.ReplicationFabrics), this.Server.Name, input);
+            if (!this.Force.IsPresent)
+            {
+                response =
+                        RecoveryServicesClient.RemoveAzureSiteRecoveryProvider(Utilities.GetValueFromArmId(this.Server.ID, ARMResourceTypeConstants.ReplicationFabrics), this.Server.Name);
+            }
+            else
+            {
+                response =
+                        RecoveryServicesClient.PurgeAzureSiteRecoveryProvider(Utilities.GetValueFromArmId(this.Server.ID, ARMResourceTypeConstants.ReplicationFabrics), this.Server.Name);
+            }
 
             JobResponse jobResponse =
                 RecoveryServicesClient
                 .GetAzureSiteRecoveryJobDetails(PSRecoveryServicesClient.GetJobIdFromReponseLocation(response.Location));
 
             WriteObject(new ASRJob(jobResponse.Job));
-        }      
+        }
     }
 }

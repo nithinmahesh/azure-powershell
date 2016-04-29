@@ -19,12 +19,14 @@ using System.Threading;
 using System.Xml;
 using Hyak.Common;
 using Microsoft.Azure.Commands.ResourceManager.Common;
-using Microsoft.Azure.Management.RecoveryServices;
-using Microsoft.Azure.Management.RecoveryServices.Models;
+using Microsoft.Azure.Management.SiteRecoveryVault;
+using Microsoft.Azure.Management.SiteRecoveryVault.Models;
 using Microsoft.Azure.Management.SiteRecovery;
 using Microsoft.Azure.Management.SiteRecovery.Models;
 using Microsoft.WindowsAzure.Commands.Utilities.Common;
 using Properties = Microsoft.Azure.Commands.SiteRecovery.Properties;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace Microsoft.Azure.Commands.SiteRecovery
 {
@@ -60,6 +62,30 @@ namespace Microsoft.Azure.Commands.SiteRecovery
         }
 
         /// <summary>
+        /// Virtual method to be implemented by Site Recovery cmdlets.
+        /// </summary>
+        public virtual void ExecuteSiteRecoveryCmdlet()
+        {
+            // Do Nothing
+        }
+
+        /// <summary>
+        /// Overriding base implementation go execute cmdlet.
+        /// </summary>
+        public override void ExecuteCmdlet()
+        {
+            try
+            {
+                base.ExecuteCmdlet();
+                ExecuteSiteRecoveryCmdlet();
+            }
+            catch (Exception ex)
+            {
+                this.HandleException(ex);
+            }
+        }
+
+        /// <summary>
         /// Exception handler.
         /// </summary>
         /// <param name="ex">Exception to handle.</param>
@@ -74,36 +100,54 @@ namespace Microsoft.Azure.Commands.SiteRecovery
             CloudException cloudException = ex as CloudException;
             if (cloudException != null)
             {
-                Error error = null;
+                ARMError error = null;
                 try
                 {
-                    using (Stream stream = new MemoryStream())
+                    if (cloudException.Message != null)
                     {
-                        if (cloudException.Message != null)
+                        string originalMessage = cloudException.Error.OriginalMessage;
+                        error = JsonConvert.DeserializeObject<ARMError>(originalMessage);
+
+                        StringBuilder exceptionMessage = new StringBuilder();
+                        exceptionMessage.Append(Properties.Resources.CloudExceptionDetails);
+
+                        if (error.Error.Details != null)
                         {
-                            byte[] data = System.Text.Encoding.UTF8.GetBytes(cloudException.Message);
-                            stream.Write(data, 0, data.Length);
-                            stream.Position = 0;
+                            foreach (ARMExceptionDetails detail in error.Error.Details)
+                            {
+                                if (!string.IsNullOrEmpty(detail.ErrorCode))
+                                    exceptionMessage.AppendLine("ErrorCode: " + detail.ErrorCode);
+                                if (!string.IsNullOrEmpty(detail.Message))
+                                    exceptionMessage.AppendLine("Message: " + detail.Message);
+                                if (!string.IsNullOrEmpty(detail.PossibleCauses))
+                                    exceptionMessage.AppendLine("Possible Causes: " + detail.PossibleCauses);
+                                if (!string.IsNullOrEmpty(detail.RecommendedAction))
+                                    exceptionMessage.AppendLine("Recommended Action: " + detail.RecommendedAction);
+                                if (!string.IsNullOrEmpty(detail.ClientRequestId))
+                                    exceptionMessage.AppendLine("ClientRequestId: " + detail.ClientRequestId);
+                                if (!string.IsNullOrEmpty(detail.ActivityId))
+                                    exceptionMessage.AppendLine("ActivityId: " + detail.ActivityId);
 
-                            var deserializer = new DataContractSerializer(typeof(ErrorInException));
-                            error = (Error)deserializer.ReadObject(stream);
-
-                            throw new InvalidOperationException(
-                                string.Format(
-                                Properties.Resources.CloudExceptionDetails,
-                                error.Message,
-                                error.PossibleCauses,
-                                error.RecommendedAction,
-                                error.ClientRequestId));
+                                exceptionMessage.AppendLine();
+                            }
                         }
                         else
                         {
-                            throw new Exception(
-                                string.Format(
-                                Properties.Resources.InvalidCloudExceptionErrorMessage,
-                                clientRequestIdMsg + ex.Message),
-                                ex);
+                            if (!string.IsNullOrEmpty(error.Error.ErrorCode))
+                                exceptionMessage.AppendLine("ErrorCode: " + error.Error.ErrorCode);
+                            if (!string.IsNullOrEmpty(error.Error.Message))
+                                exceptionMessage.AppendLine("Message: " + error.Error.Message);
                         }
+
+                        throw new InvalidOperationException(exceptionMessage.ToString());
+                    }
+                    else
+                    {
+                        throw new Exception(
+                            string.Format(
+                            Properties.Resources.InvalidCloudExceptionErrorMessage,
+                            clientRequestIdMsg + ex.Message),
+                            ex);
                     }
                 }
                 catch (XmlException)
@@ -196,7 +240,7 @@ namespace Microsoft.Azure.Commands.SiteRecovery
         /// Gets the current vault location.
         /// </summary>
         /// <returns>The current vault location.</returns>
-        protected string GetCurrentValutLocation()
+        protected string GetCurrentVaultLocation()
         {
             string location = string.Empty;
 

@@ -19,18 +19,32 @@ namespace Commands.Network.Test.ScenarioTests
 {
     public class VirtualNetworkGatewayConnectionTests : Microsoft.WindowsAzure.Commands.Test.Utilities.Common.RMTestBase
     {
-        [Fact(Skip = "TODO: Test runs for 40 minutes beforef failing, needs to be fixed")]
+        [Fact]
         [Trait(Category.AcceptanceType, Category.CheckIn)]
         public void TestVirtualNetworkGatewayConnectionCRUD()
         {
             NetworkResourcesController.NewInstance.RunPsTest("Test-VirtualNetworkGatewayConnectionCRUD");
         }
 
-        [Fact(Skip = "TODO: Will send another PR after re-recording test")]
+        [Fact]
         [Trait(Category.AcceptanceType, Category.CheckIn)]
         public void TestVirtualNetworkGatewayConnectionSharedKeyCRUD()
         {
             NetworkResourcesController.NewInstance.RunPsTest("Test-VirtualNetworkGatewayConnectionSharedKeyCRUD");
+        }
+
+        [Fact]
+        [Trait(Category.AcceptanceType, Category.CheckIn)]
+        public void TestVirtualNetworkeExpressRouteGatewayConnectionCRUD()
+        {
+            NetworkResourcesController.NewInstance.RunPsTest("Test-VirtualNetworkeExpressRouteGatewayConnectionCRUD");
+        }
+
+        [Fact]
+        [Trait(Category.AcceptanceType, Category.CheckIn)]
+        public void TestVirtualNetworkGatewayConnectionWithBgpCRUD()
+        {
+            NetworkResourcesController.NewInstance.RunPsTest("Test-VirtualNetworkGatewayConnectionWithBgpCRUD");
         }
     }
 }

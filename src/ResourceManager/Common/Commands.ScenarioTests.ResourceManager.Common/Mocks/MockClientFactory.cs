@@ -23,12 +23,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hyak.Common;
 using Microsoft.Azure.Test.HttpRecorder;
-using Microsoft.Azure.Common;
-using Microsoft.Azure.Common.Authentication.Factories;
-using Microsoft.Azure.Common.Authentication.Models;
-using Microsoft.Azure.Common.Authentication;
 using Microsoft.Azure;
 using System.IO;
+using Microsoft.Azure.Commands.Common.Authentication;
+using Microsoft.Azure.Commands.Common.Authentication.Factories;
+using Microsoft.Azure.Commands.Common.Authentication.Models;
+using Microsoft.Azure.ServiceManagemenet.Common;
+using Microsoft.WindowsAzure.Commands.ScenarioTest;
 
 namespace Microsoft.WindowsAzure.Commands.Common.Test.Mocks
 {
@@ -114,7 +115,7 @@ namespace Microsoft.WindowsAzure.Commands.Common.Test.Mocks
             }
             else
             {
-                if (!MoqClients)
+                if (!MoqClients && !client.GetType().Namespace.Contains("Castle."))
                 {
                     // Use the WithHandler method to create an extra reference to the http client
                     // this will prevent the httpClient from being disposed in a long-running test using 
@@ -173,6 +174,12 @@ namespace Microsoft.WindowsAzure.Commands.Common.Test.Mocks
         public void RemoveHandler(Type handlerType)
         {
             // Do nothing
+        }
+
+        public DelegatingHandler[] GetCustomHandlers()
+        {
+            // the equivalent of doing nothing
+            return new DelegatingHandler[0];
         }
 
         public void AddUserAgent(string productName, string productVersion)

@@ -1,3 +1,149 @@
+##2016.04.19 version 1.3.2
+* Add support for specifying NIC/VMSS as application gateway backend address
+* Fix HDI ADL cluster creation and live test
+* Fix WAPack cmdlet Proxy issue for WAP
+* Fix Dynamic Memory Issue while setting VM
+* Update Azure Gov STS and Traffic Manager
+* Compute
+  - Upgrade to Microsoft.Azure.Management.Compute nuget package v13.0 
+* HDInsignt
+  - Upgrade to Microsoft.Azure.Management.HDInsight nuget package v1.0.14
+* Resource Manager 
+  - Change api-version for Policy and Locks operations
+  - Change api version for Deployments operations
+* Web Apps
+  - Add backup and restore cmdlets
+    - Restore-AzureWebApp
+    - Edit-AzureRmWebAppBackupConfiguration
+    - Get-AzureRmWebAppBackupConfiguration
+    - Get-AzureRmWebAppBackup
+    - New-AzureRmWebAppBackup
+    - Remove-AzureRmWebAppBackup
+    - Restore-AzureRmWebAppBackup
+    - Get-AzureRmWebAppBackupList
+    - New-AzureRmWebAppDatabaseBackupSetting
+  - Upgrade to Microsoft.WindowsAzure.Management.WebSite nuget package v5.0
+
+##2016.03.30 version 1.3.0
+* AzureRM module
+  - Installation performance fix
+* New Azure CDN cmdlets
+* Azure Storage
+  * Made Protocol parameter in following cmdlets to be nullable and optional
+    - New-AzureStorageBlobSASToken
+    - New-AzureStorageContainerSASToken
+    - New-AzureStorageFileSASToken
+    - New-AzureStorageShareSASToken
+    - New-AzureStorageQueueSASToken
+    - New-AzureStorageTableSASToken
+    - New-AzureStorageAccountSASToken
+* Add Export-AzureRmResourceGroupTemplate cmdlet
+* Add VirtualMachineScaleSet cmdlet
+* Add "EA" value for permission parameter of Set-AzurePlatformVMImage
+* Documentation improvements in cmdlets 
+
+##2016.03.03 version 1.2.2
+* Azure Compute (ARM):
+  * Add -LicenseType parameter to New-AzureRmVM for bring your own license (BYOL)
+  * Add -SecureExecution parameter to Set-AzureRmVMCustomScriptExtension
+  * Add -DisableAutoUpgradeMinorVersion and -ForceRerun parameters to Set-AzureRmVMExtension
+  * Add Set-AzureRmVMPlan cmdlet
+  * Add -Redeploy parameter to Set-AzureRmVM
+  * Add AutoUpgradeMinorVersion and ForceUpdateTag parameters for Get-AzureRmVMExtension
+  * Update positions of parameters for New-AzureRmVM
+* Azure Compute (Service Management):
+  * Add Set-AzureBootDiagnostics cmdlets
+  * Enable boot diagnostics by default for New-AzureVM and New-AzureQuickVM
+* Azure LogicApp: New cmdlets for managing LogicApps  
+  * Get-AzureLogicAppAccessKey
+  * Get-AzureLogicApp
+  * Get-AzureLogicAppRunAction
+  * Get-AzureLogicAppRunHistory
+  * Get-AzureLogicAppTrigger
+  * Get-AzureLogicAppTriggerHistory
+  * New-AzureLogicApp
+  * Remove-AzureLogicApp
+  * Start-AzureLogicApp
+  * Set-AzureLogicAppAccessKey
+  * Set-AzureLogicApp
+  * Stop-AzureLogicAppRun
+ * Azure Storage
+  * Added cmdlet to generate SAS token against storage account
+    - New-AzureStorageAccountSASToken
+  * Added IPAddressOrRange/Protocol support in cmdlets to generate SAS token against blob, container, file, share, table, queue
+    - New-AzureStorageBlobSASToken
+    - New-AzureStorageContainerSASToken
+    - New-AzureStorageFileSASToken
+    - New-AzureStorageShareSASToken
+    - New-AzureStorageQueueSASToken
+    - New-AzureStorageTableSASToken
+* Azure SQL DB Backup/restore
+  * Get-AzureRmSqlDatabaseGeoBackup
+  * Get-AzureRmSqlDeletedDatabaseBackup
+  * Restore-AzureRmSqlDatabase
+    * This cmdlet accepts as pipelined input the result of one of the first two cmdlets (or Get-AzureRmSqlDatabase if restoring a live DB to a point-in-time)
+
+## 2016.02.04 version 1.2.1
+* Fix installer issue - remove PSGallery modules on install
+
+## 2016.02.03 version 1.2.0
+* Azure RemoteApp: 
+  * Organizational Unit in Azure RemoteApp RDFE cmdlets now accepts Unicode characters.
+* Azure Stack Admin: 
+  * New module for the management of azure stack administrative resources such as plan, offer, subscription, resource provider and
+    gallery items.
+* Azure Stack Storage Admin: 
+  * New module for the management of azure stack storage administrative resources such as configuration, infrastructure and health.
+* Azure Operational Insights new cmdlets:
+  *  Get-AzureRmOperationalInsightsSavedSearch
+  *  Get-AzureRmOperationalInsightsSavedSeearchResults
+  *  Get-AzureRmOperationalInsightsSavedSearches
+  *  Get-AzureRmOperationalInsightsSchema
+  *  Get-AzureRmOperationalInsightsSearchResult
+  *  Get-AzureRmOperationalInsightsSearchResultUpdate
+  *  Remove-AzureRmOperationalInsightsSavedSearch
+  *  Remove-AzureRmOperationalInsightsSavedSearch
+  *  Set-AzureRmOperationalInsightsSavedSearch
+* Add-AzureRmAccount fixed issue with wrong credential message
+* Get-AzureRmSubscription cmdlet now returns paginated results
+* Update-AzureRM now only updates when need unless -Force is used
+* Added telemetry to ARM and ASM cmdlets
+
+## 2016.01.12 version 1.1.0
+* Azure SQL Database: Threat Detection policies:
+  * Using new Threat Detection Types
+* Azure Redis Cache: new cmdlets for enabling and disabling diagnostics
+  * Set-AzureRmRedisCacheDiagnostics
+  * Remove-AzureRmRedisCacheDiagnostics
+* Azure Websites: New cmdlets for managing SSL binding
+  * Get-AzureRmWebAppCertificate
+  * New-AzureRmWebAppSSLBinding
+  * Get-AzureRmWebAppSSLBinding
+  * Remove-AzureRmWebAppSSLBinding
+  * Added AseName and AseResourceGroupName parameters in New-AzureRmWebApp and New-AzureRmAppServicePlan cmdlet
+  * Added support for cloning all deployment slots associated with source website
+* Azure Stream Analytics: Added new cmdlet support for Functions.
+  * New-AzureRmStreamAnalyticsFunction
+  * Get-AzureRmStreamAnalyticsFunction
+  * Test-AzureRmStreamAnalyticsFunction
+  * Get-AzureRmStreamAnalyticsDefaultFunctionDefinition
+  * Remove-AzureRmStreamAnalyticsFunction
+* Azure Batch
+  * New-AzureBatchTask now accepts a MultiInstanceSettings parameter
+  * Get-AzureBatchSubtask cmdlet added
+  * Enable-AzureBatchComputeNodeScheduling / Disable-AzureBatchComputeNodeScheduling cmdlets added
+  * Enable-AzureBatchAutoScale and New-AzureBatchPool now accept an AutoScaleEvaluationInterval parameter.
+  
+## 2015.12.14 version 1.0.2
+* Azure Compute (ARM):
+  * Enable BGInfo extension by default
+  * Fix the issue when an OS disk is in a different resource group: Now New-AzureRmVM does not create a new storage account for boot diagnostics.
+  * Add Set-AzureRmBginfoExtension cmdlet
+  * Make WinRMCertificateUrl parameter mandatory when Set-AzureRmVMOperatingSystem cmdlet is performed with WinRMHttps switch
+* Azure Compute (Service Management):
+  * Fix the issue when adding a new VM without a data disk
+  * Add ExtensionId parameter for all extension cmdlets
+  * Expose RemoteAccessCertificateThumbprint property for Get-AzureVM cmdlet
 * Azure SQL Database: new cmdlets for managing database threat detection policies:
   * Get-AzureRmSqlDatabaseThreatDetectionPolicy
   * Set-AzureRmSqlDatabaseThreatDetectionPolicy
@@ -5,7 +151,10 @@
 * Azure RemoteApp: New cmdlets for managing stale machine accounts in AD:
   * Get-AzureRemoteAppVmStaleAdObject
   * Clear-AzureRemoteAppVmStaleAdObject
-  
+* ARM Storage:
+  * Fix alias missing issue
+
+
 ## 2015.11.09 version 1.0.1
 * Azure Compute
   * Added cmdlets for managing VM DiskEncryption extension

@@ -67,9 +67,7 @@ namespace Microsoft.Azure.Commands.Compute
             Position = 3,
             ValueFromPipelineByPropertyName = true,
             HelpMessage = HelpMessages.VMOSDiskCaching)]
-        [ValidateNotNullOrEmpty]
-        [ValidateSet(ValidateSetValues.ReadOnly, ValidateSetValues.ReadWrite, ValidateSetValues.None)]
-        public string Caching { get; set; }
+        public CachingTypes? Caching { get; set; }
 
         [Alias("SourceImage")]
         [Parameter(
@@ -84,9 +82,7 @@ namespace Microsoft.Azure.Commands.Compute
             Position = 5,
             ValueFromPipelineByPropertyName = true,
             HelpMessage = HelpMessages.VMDataDiskCreateOption)]
-        [ValidateNotNullOrEmpty]
-        [ValidateSet(DiskCreateOptionTypes.Empty, DiskCreateOptionTypes.Attach, DiskCreateOptionTypes.FromImage)]
-        public string CreateOption { get; set; }
+        public DiskCreateOptionTypes CreateOption { get; set; }
 
         [Parameter(
             ParameterSetName = WindowsParamSet,
@@ -183,16 +179,16 @@ namespace Microsoft.Azure.Commands.Compute
                         string.Empty, ErrorCategory.InvalidArgument, null));
             }
 
-            this.VM.StorageProfile.OSDisk = new OSDisk
+            this.VM.StorageProfile.OsDisk = new OSDisk
             {
                 Caching = this.Caching,
                 Name = this.Name,
-                OperatingSystemType = this.Windows.IsPresent ? OperatingSystemTypes.Windows : this.Linux.IsPresent ? OperatingSystemTypes.Linux : null,
-                VirtualHardDisk = string.IsNullOrEmpty(this.VhdUri) ? null : new VirtualHardDisk
+                OsType = this.Windows.IsPresent ? OperatingSystemTypes.Windows : this.Linux.IsPresent ? OperatingSystemTypes.Linux : (OperatingSystemTypes?) null,
+                Vhd = string.IsNullOrEmpty(this.VhdUri) ? null : new VirtualHardDisk
                 {
                     Uri = this.VhdUri
                 },
-                SourceImage = string.IsNullOrEmpty(this.SourceImageUri) ? null : new VirtualHardDisk
+                Image = string.IsNullOrEmpty(this.SourceImageUri) ? null : new VirtualHardDisk
                 {
                     Uri = this.SourceImageUri
                 },
@@ -203,9 +199,9 @@ namespace Microsoft.Azure.Commands.Compute
                 {
                     DiskEncryptionKey = new KeyVaultSecretReference
                     {
-                        SourceVault = new SourceVaultReference
+                        SourceVault = new SubResource
                         {
-                            ReferenceUri = this.DiskEncryptionKeyVaultId
+                            Id = this.DiskEncryptionKeyVaultId
                         },
                         SecretUrl = this.DiskEncryptionKeyUrl
                     },
@@ -214,9 +210,9 @@ namespace Microsoft.Azure.Commands.Compute
                     : new KeyVaultKeyReference
                     {
                         KeyUrl = this.KeyEncryptionKeyUrl,
-                        SourceVault = new SourceVaultReference
+                        SourceVault = new SubResource
                         {
-                            ReferenceUri = this.KeyEncryptionKeyVaultId
+                            Id = this.KeyEncryptionKeyVaultId
                         },
                     }
                 }

@@ -21,9 +21,24 @@ namespace Commands.Network.Test.ScenarioTests
     {
         [Fact]
         [Trait(Category.AcceptanceType, Category.CheckIn)]
+        public void TestVirtualNetworkExpressRouteGatewayCRUD()
+        {
+            NetworkResourcesController.NewInstance.RunPsTest("Test-VirtualNetworkExpressRouteGatewayCRUD");
+        }
+
+
+        [Fact(Skip = "Rerecord tests")]
+        [Trait(Category.AcceptanceType, Category.CheckIn)]
         public void TestVirtualNetworkGatewayCRUD()
         {
             NetworkResourcesController.NewInstance.RunPsTest("Test-VirtualNetworkGatewayCRUD");
+        }
+
+        [Fact(Skip = "Need to record afterwards, failing due to product issue.")]
+        [Trait(Category.AcceptanceType, Category.CheckIn)]
+        public void TestVirtualNetworkGatewayP2SAndSKU()
+        {
+            NetworkResourcesController.NewInstance.RunPsTest("Test-VirtualNetworkGatewayP2SAndSKU");
         }
     }
 }

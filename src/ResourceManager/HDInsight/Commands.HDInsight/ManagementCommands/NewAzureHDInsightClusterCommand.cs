@@ -23,11 +23,13 @@ using Microsoft.Azure.Commands.HDInsight.Models;
 using Microsoft.Azure.Commands.HDInsight.Models.Management;
 using Microsoft.Azure.Management.HDInsight.Models;
 using Microsoft.WindowsAzure.Commands.Common;
-using Microsoft.Azure.Common.Authentication.Models;
+using Microsoft.Azure.ServiceManagemenet.Common.Models;
 using Microsoft.Azure.Graph.RBAC;
 using Microsoft.Azure.Graph.RBAC.Models;
-using Microsoft.Azure.Common.Authentication;
+using Microsoft.Azure.ServiceManagemenet.Common;
 using System.Diagnostics;
+using Microsoft.Azure.Commands.Common.Authentication;
+using Microsoft.Azure.Commands.Common.Authentication.Models;
 
 namespace Microsoft.Azure.Commands.HDInsight
 {
@@ -97,120 +99,16 @@ namespace Microsoft.Azure.Commands.HDInsight
             set { parameters.DefaultStorageAccountKey = value; }
         }
 
-        [Parameter(HelpMessage = "Gets or sets the database to store the metadata for Oozie.")]
-        public AzureHDInsightMetastore OozieMetastore { get; set; }
-
-        [Parameter(HelpMessage = "Gets or sets the database to store the metadata for Hive.")]
-        public AzureHDInsightMetastore HiveMetastore { get; set; }
-
-        [Parameter(HelpMessage = "Gets additional Azure Storage Account that you want to enable access to.")]
-        public Dictionary<string, string> AdditionalStorageAccounts { get; private set; }
-
-        [Parameter(HelpMessage = "Gets the configurations of this HDInsight cluster.")]
-        public Dictionary<string, Dictionary<string, string>> Configurations { get; private set; }
-
-        [Parameter(HelpMessage = "Gets config actions for the cluster.")]
-        public Dictionary<ClusterNodeType, List<AzureHDInsightScriptAction>> ScriptActions { get; private set; }
-
-        [Parameter(HelpMessage = "Gets or sets the StorageContainer for the default Azure Storage Account.")]
-        public string DefaultStorageContainer
-        {
-            get { return parameters.DefaultStorageContainer; }
-            set { parameters.DefaultStorageContainer = value; }
-        }
-        
-        [Parameter(HelpMessage = "Gets or sets the version of the HDInsight cluster.")]
-        public string Version 
-        {
-            get { return parameters.Version; }
-            set { parameters.Version = value; }
-        }
-
-        [Parameter(HelpMessage = "Gets or sets the size of the Head Node.")]
-        public string HeadNodeSize
-        {
-            get { return parameters.HeadNodeSize; }
-            set { parameters.HeadNodeSize = value; }
-        }
-
-        [Parameter(HelpMessage = "Gets or sets the size of the Data Node.")]
-        public string WorkerNodeSize 
-        {
-            get { return parameters.WorkerNodeSize; }
-            set { parameters.WorkerNodeSize = value; }
-        }
-
-        [Parameter(HelpMessage = "Gets or sets the size of the Zookeeper Node.")]
-        public string ZookeeperNodeSize
-        {
-            get { return parameters.ZookeeperNodeSize; }
-            set { parameters.ZookeeperNodeSize = value; }
-        }
-
-        [Parameter(HelpMessage = "Gets or sets the flavor for a cluster.")]
-        public HDInsightClusterType ClusterType
-        {
-            get { return parameters.ClusterType; }
-            set { parameters.ClusterType = value; }
-        }
-
-        [Parameter(HelpMessage = "Gets or sets the virtual network guid for this HDInsight cluster.")]
-        public string VirtualNetworkId
-        {
-            get { return parameters.VirtualNetworkId; }
-            set { parameters.VirtualNetworkId = value; }
-        }
-
-        [Parameter(HelpMessage = "Gets or sets the subnet name for this HDInsight cluster.")]
-        public string SubnetName
-        {
-            get { return parameters.SubnetName; }
-            set { parameters.SubnetName = value; }
-        }
-
-        [Parameter(HelpMessage = "Gets or sets the type of operating system installed on cluster nodes.")]
-        public OSType OSType
-        {
-            get { return parameters.OSType; }
-            set { parameters.OSType = value; }
-        }
-
-        [Parameter(HelpMessage = "Gets or sets SSH credential.")]
-        public PSCredential SshCredential { get; set; }
-
-        [Parameter(HelpMessage = "Gets or sets the public key to be used for SSH.")]
-        public string SshPublicKey { get; set; }
-
-        [Parameter(HelpMessage = "Gets or sets the credential for RDP access to the cluster.")]
-        public PSCredential RdpCredential { get; set; }
-
-        [Parameter(HelpMessage = "Gets or sets the expiry DateTime for RDP access on the cluster.")]
-        public DateTime RdpAccessExpiry
-        {
-            get { return parameters.RdpAccessExpiry; }
-            set { parameters.RdpAccessExpiry = value; }
-        }
-
-        [Parameter(HelpMessage = "Gets or sets the Service Principal Object Id for accessing Azure Data Lake.")]
-        public Guid ObjectId { get; set; }
-
-        [Parameter(HelpMessage = "Gets or sets the Service Principal Certificate for accessing Azure Data Lake.")]
-        public string CertificateFilePath { get; set; }
-
-        [Parameter(HelpMessage = "Gets or sets the Service Principal Certificate Password for accessing Azure Data Lake.")]
-        public string CertificatePassword { get; set; }
-
-        [Parameter(HelpMessage = "Gets or sets the Service Principal AAD Tenant Id for accessing Azure Data Lake.", ParameterSetName = "ServicePrincipal")]
-        public Guid AadTenantId { get; set; }
-
         [Parameter(ValueFromPipeline = true,
             HelpMessage = "The HDInsight cluster configuration to use when creating the new cluster.")]
-        public AzureHDInsightConfig Config {
+        public AzureHDInsightConfig Config
+        {
             get
             {
                 var result = new AzureHDInsightConfig
                 {
                     ClusterType = parameters.ClusterType,
+                    ClusterTier = parameters.ClusterTier,
                     DefaultStorageAccountName = parameters.DefaultStorageAccountName,
                     DefaultStorageAccountKey = parameters.DefaultStorageAccountKey,
                     WorkerNodeSize = parameters.WorkerNodeSize,
@@ -243,8 +141,15 @@ namespace Microsoft.Azure.Commands.HDInsight
             set
             {
                 parameters.ClusterType = value.ClusterType;
-                parameters.DefaultStorageAccountName = value.DefaultStorageAccountName;
-                parameters.DefaultStorageAccountKey = value.DefaultStorageAccountKey;
+                parameters.ClusterTier = value.ClusterTier;
+                if (parameters.DefaultStorageAccountName == null)
+                {
+                    parameters.DefaultStorageAccountName = value.DefaultStorageAccountName;
+                }
+                if (parameters.DefaultStorageAccountKey == null)
+                {
+                    parameters.DefaultStorageAccountKey = value.DefaultStorageAccountKey;
+                }
                 parameters.WorkerNodeSize = value.WorkerNodeSize;
                 parameters.HeadNodeSize = value.HeadNodeSize;
                 parameters.ZookeeperNodeSize = value.ZookeeperNodeSize;
@@ -270,8 +175,121 @@ namespace Microsoft.Azure.Commands.HDInsight
                 {
                     parameters.ScriptActions.Add(action.Key, action.Value.Select(a => a.GetScriptActionFromPSModel()).ToList());
                 }
-            } 
+            }
         }
+
+        [Parameter(HelpMessage = "Gets or sets the database to store the metadata for Oozie.")]
+        public AzureHDInsightMetastore OozieMetastore { get; set; }
+
+        [Parameter(HelpMessage = "Gets or sets the database to store the metadata for Hive.")]
+        public AzureHDInsightMetastore HiveMetastore { get; set; }
+
+        [Parameter(HelpMessage = "Gets additional Azure Storage Account that you want to enable access to.")]
+        public Dictionary<string, string> AdditionalStorageAccounts { get; private set; }
+
+        [Parameter(HelpMessage = "Gets the configurations of this HDInsight cluster.")]
+        public Dictionary<string, Dictionary<string, string>> Configurations { get; private set; }
+
+        [Parameter(HelpMessage = "Gets config actions for the cluster.")]
+        public Dictionary<ClusterNodeType, List<AzureHDInsightScriptAction>> ScriptActions { get; private set; }
+
+        [Parameter(HelpMessage = "Gets or sets the StorageContainer for the default Azure Storage Account.")]
+        public string DefaultStorageContainer
+        {
+            get { return parameters.DefaultStorageContainer; }
+            set { parameters.DefaultStorageContainer = value; }
+        }
+
+        [Parameter(HelpMessage = "Gets or sets the version of the HDInsight cluster.")]
+        public string Version
+        {
+            get { return parameters.Version; }
+            set { parameters.Version = value; }
+        }
+
+        [Parameter(HelpMessage = "Gets or sets the size of the Head Node.")]
+        public string HeadNodeSize
+        {
+            get { return parameters.HeadNodeSize; }
+            set { parameters.HeadNodeSize = value; }
+        }
+
+        [Parameter(HelpMessage = "Gets or sets the size of the Data Node.")]
+        public string WorkerNodeSize
+        {
+            get { return parameters.WorkerNodeSize; }
+            set { parameters.WorkerNodeSize = value; }
+        }
+
+        [Parameter(HelpMessage = "Gets or sets the size of the Zookeeper Node.")]
+        public string ZookeeperNodeSize
+        {
+            get { return parameters.ZookeeperNodeSize; }
+            set { parameters.ZookeeperNodeSize = value; }
+        }
+
+        [Parameter(HelpMessage = "Gets or sets the flavor for a cluster.")]
+        public string ClusterType
+        {
+            get { return parameters.ClusterType; }
+            set { parameters.ClusterType = value; }
+        }
+
+        [Parameter(HelpMessage = "Gets or sets the virtual network guid for this HDInsight cluster.")]
+        public string VirtualNetworkId
+        {
+            get { return parameters.VirtualNetworkId; }
+            set { parameters.VirtualNetworkId = value; }
+        }
+
+        [Parameter(HelpMessage = "Gets or sets the subnet name for this HDInsight cluster.")]
+        public string SubnetName
+        {
+            get { return parameters.SubnetName; }
+            set { parameters.SubnetName = value; }
+        }
+
+        [Parameter(HelpMessage = "Gets or sets the type of operating system installed on cluster nodes.")]
+        public OSType OSType
+        {
+            get { return parameters.OSType; }
+            set { parameters.OSType = value; }
+        }
+
+        [Parameter(HelpMessage = "Gets or sets the cluster tier for this HDInsight cluster.")]
+        public Tier ClusterTier
+        {
+            get { return parameters.ClusterTier; }
+            set { parameters.ClusterTier = value; }
+        }
+
+        [Parameter(HelpMessage = "Gets or sets SSH credential.")]
+        public PSCredential SshCredential { get; set; }
+
+        [Parameter(HelpMessage = "Gets or sets the public key to be used for SSH.")]
+        public string SshPublicKey { get; set; }
+
+        [Parameter(HelpMessage = "Gets or sets the credential for RDP access to the cluster.")]
+        public PSCredential RdpCredential { get; set; }
+
+        [Parameter(HelpMessage = "Gets or sets the expiry DateTime for RDP access on the cluster.")]
+        public DateTime RdpAccessExpiry
+        {
+            get { return parameters.RdpAccessExpiry; }
+            set { parameters.RdpAccessExpiry = value; }
+        }
+
+        [Parameter(HelpMessage = "Gets or sets the Service Principal Object Id for accessing Azure Data Lake.")]
+        public Guid ObjectId { get; set; }
+
+        [Parameter(HelpMessage = "Gets or sets the Service Principal Certificate for accessing Azure Data Lake.")]
+        public string CertificateFilePath { get; set; }
+
+        [Parameter(HelpMessage = "Gets or sets the Service Principal Certificate Password for accessing Azure Data Lake.")]
+        public string CertificatePassword { get; set; }
+
+        [Parameter(HelpMessage = "Gets or sets the Service Principal AAD Tenant Id for accessing Azure Data Lake.", ParameterSetName = "ServicePrincipal")]
+        public Guid AadTenantId { get; set; }
 
         #endregion
 
@@ -336,9 +354,9 @@ namespace Microsoft.Azure.Commands.HDInsight
             }
             if (CertificateFilePath != null && CertificatePassword != null)
             {
-                Microsoft.Azure.Management.HDInsight.Models.ServicePrincipal servicePrincipal = 
-                    new Microsoft.Azure.Management.HDInsight.Models.ServicePrincipal(
-                        GetApplicationId(), GetTenantId(AadTenantId), File.ReadAllBytes(CertificateFilePath), CertificatePassword);
+                var servicePrincipal = new Management.HDInsight.Models.ServicePrincipal(
+                    GetApplicationId(), GetTenantId(AadTenantId), File.ReadAllBytes(CertificateFilePath),
+                    CertificatePassword);
                 parameters.Principal = servicePrincipal;
             }
 
@@ -379,7 +397,7 @@ namespace Microsoft.Azure.Commands.HDInsight
         {
             Guid tenantId = GetTenantId(AadTenantId);
 
-            SubscriptionCloudCredentials cred = AzureSession.AuthenticationFactory.GetSubscriptionCloudCredentials(DefaultProfile.Context);
+            SubscriptionCloudCredentials cred = AzureSession.AuthenticationFactory.GetSubscriptionCloudCredentials(DefaultProfile.Context, AzureEnvironment.Endpoint.Graph);
             GraphRbacManagementClient graphClient = new GraphRbacManagementClient(tenantId.ToString(), cred);
 
             ServicePrincipalGetResult res = graphClient.ServicePrincipal.Get(ObjectId.ToString());
